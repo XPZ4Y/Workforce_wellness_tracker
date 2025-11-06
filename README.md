@@ -1,2 +1,9 @@
 # Workforce_wellness_tracker
-An AI solution to monitor workforce wellness health. Our goal is to warn of burnouts, suggest changes.
+Burnout leads to high absenteeism, poor service quality, and rising recruitment
+costs — especially in hospitals, social welfare services, and citizen service
+canters.
+
+Managers lack visibility into factors driving performance decline, and employees
+often report stress too late
+
+So, let's provide the managers the tools to monitor the worker health.
