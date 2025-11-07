@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TURBO HEALTH + — Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#060712; --panel:#071428; --muted:#9fb0c6; --glass:rgba(255,255,255,0.03);
+      --accent-1:#33e6c2; --accent-2:#6b5cff; --danger:#ff6b6b; --card-shadow: 0 12px 40px rgba(11,14,25,0.6);
+    }
+    [data-theme='light']{ --bg:#f6fbff; --panel:#ffffff; --muted:#556077; --glass:rgba(2,6,23,0.03); --accent-1:#0ea5a3; --accent-2:#7c3aed }
+    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#041029);color:#e8f0f8}
+    .app{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .tag{font-size:13px;color:var(--muted)}
+
+    /* layout */
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:18px;box-shadow:var(--card-shadow);}
+
+    /* Welcome */
+    .welcome{display:flex;gap:18px;align-items:center}
+    .logo{width:84px;height:84px;border-radius:18px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#022;font-size:22px;box-shadow:0 10px 30px rgba(107,92,255,0.14)}
+    .welcome h2{margin:0;font-size:18px}
+    .welcome p{margin:6px 0 0;color:var(--muted)}
+    .controls{display:flex;gap:10px;margin-top:12px}
+    .btn{padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700}
+    .btn.primary{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#022}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
+    .icon{cursor:pointer}
+
+    /* settings drawer */
+    .settingsBtn{position:relative}
+    .drawer{position:fixed;right:18px;top:80px;width:320px;background:var(--panel);border-radius:12px;padding:14px;box-shadow:0 20px 60px rgba(2,6,23,0.6);display:none;z-index:60}
+    .drawer.open{display:block}
+    .drawer h4{margin:0 0 8px}
+    .toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+    .toggle input{width:40px;height:22px}
+
+    /* profile & dashboard */
+    .profileRow{display:flex;gap:12px;align-items:center}
+    .profileName{font-weight:700}
+    .dashActions{display:flex;gap:8px;margin-top:12px}
+
+    /* check-in area */
+    .checkin{min-height:360px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative}
+    .bubble{max-width:740px;padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.03);}
+    .assistant{align-self:flex-start}
+    .user{align-self:flex-end;background:linear-gradient(90deg,rgba(255,255,255,0.01),transparent)}
+    .questionTitle{font-size:18px;margin:0 0 6px}
+    .questionSub{color:var(--muted);font-size:13px;margin:0 0 12px}
+
+    .answerArea{width:100%;display:flex;flex-direction:column;align-items:center}
+    .inputText{width:90%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .range{width:86%}
+    .options{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .optionBtn{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);background:transparent;cursor:pointer}
+
+    /* Save & Next button visible for text/number only */
+    .saveNext{margin-top:12px}
+
+    /* thank you */
+    .thanks{display:flex;align-items:center;justify-content:center;height:340px}
+    .thanks h1{font-size:36px;color:var(--accent-1);letter-spacing:1px}
+
+    /* dashboard */
+    .metricRow{display:flex;gap:10px;margin-top:12px}
+    .metric{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);text-align:center}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* animations */
+    .fadeIn{animation:fadeIn .45s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* premium glow hover */
+    .btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(107,92,255,0.12)}
+
+  </style>
+</head>
+<body>
+  <div class="app" id="appRoot">
+    <header>
+      <div>
+        <h1>TURBO HEALTH +</h1>
+        <div class="tag">Caring daily check-ins • Analytics-ready</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="profileRow card" style="padding:8px 12px">
+          <div id="profilePreview">—</div>
+        </div>
+        <div class="settingsBtn">
+          <svg id="openSettings" class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke="white" stroke-opacity="0.9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09c.12.6.59 1.1 1.17 1.31h.01c.68.24 1.28.77 1.61 1.46l.09.23c.24.63.71 1.13 1.33 1.42l.14.06H21a2 2 0 1 1 0 4h-.09c-.6.12-1.1.59-1.31 1.17v.01c-.24.68-.77 1.28-1.46 1.61l-.23.09c-.63.24-1.13.71-1.42 1.33l-.06.14z" stroke="white" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Left: check-in or welcome -->
+      <div id="mainCard" class="card fadeIn">
+        <!-- Welcome / landing -->
+        <div id="landing" class="welcome">
+          <div class="logo">TH+</div>
+          <div style="flex:1">
+            <h2 id="landingTitle">Welcome to Turbo Health+</h2>
+            <p class="tag" id="landingSub">A short caring check-in — takes under a minute.</p>
+            <div id="landingControls" class="dashActions">
+              <button id="startCheckinBtn" class="btn primary">Start Daily Check-In</button>
+              <button id="goDashboardBtn" class="btn ghost">Go to Dashboard</button>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+              <div style="flex:1">
+                <input id="quickName" class="inputText" placeholder="Enter your name (first time only)" />
+              </div>
+              <div>
+                <button id="quickOnboard" class="btn ghost">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Check-in screen -->
+        <div id="checkinArea" class="checkin hidden">
+          <div class="bubble assistant fadeIn">
+            <div class="questionTitle" id="qTitle">Question</div>
+            <div class="questionSub" id="qSub">sub</div>
+          </div>
+
+          <div class="answerArea" id="answerArea"></div>
+          <div style="width:100%;display:flex;justify-content:center"><div id="saveContainer" class="saveNext"></div></div>
+        </div>
+
+        <!-- Thank you -->
+        <div id="thanksArea" class="thanks hidden">
+          <h1>THANK YOU — HAVE A NICE DAY 😊</h1>
+        </div>
+
+      </div>
+
+      <!-- Right: dashboard & profile -->
+      <aside class="card fadeIn" id="dashCard">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="small">Hello,</div>
+            <div class="profileName" id="dashName">—</div>
+          </div>
+          <div>
+            <button id="openProfile" class="btn ghost">Profile</button>
+          </div>
+        </div>
+
+        <div class="metricRow">
+          <div class="metric"><div class="small">Productivity</div><div id="cardProd" style="font-size:18px;font-weight:700">—</div></div>
+          <div class="metric"><div class="small">Burnout risk</div><div id="cardRisk" style="font-size:18px;font-weight:700">—</div></div>
+        </div>
+
+        <div style="margin-top:12px"><canvas id="dashChart" width="320" height="180"></canvas></div>
+        <div style="margin-top:12px"><div class="small">Recent</div><ul id="recentList" class="small" style="margin:8px 0 0;padding-left:16px"></ul></div>
+      </aside>
+    </div>
+
+    <!-- Settings drawer -->
+    <div id="settingsDrawer" class="drawer">
+      <h4>Settings</h4>
+      <div class="toggle"><div class="small">Dark mode</div><div><input id="themeToggle" type="checkbox" checked></div></div>
+      <div class="toggle"><div class="small">Enable cloud sync</div><div><input id="syncToggle" type="checkbox"></div></div>
+      <div style="margin-top:10px;">
+        <button id="openPrivacy" class="btn ghost">Privacy Policy</button>
+        <button id="resetData" class="btn" style="background:linear-gradient(90deg,var(--danger),#ff8a8a);color:#022;margin-left:8px">Reset Data</button>
+      </div>
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+      <div><button id="editProfileBtn" class="btn primary">Edit Profile</button></div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalRoot" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:80">
+      <div style="width:640px;max-width:94%;background:var(--panel);border-radius:12px;padding:18px;box-shadow:0 30px 80px rgba(2,6,23,0.6);">
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  // TURBO HEALTH + v3 — frontend single file
+  const KEY='turbo_health_plus_v3';
+  let state = loadState();
+  const QUESTIONS = [
+    {id:'hardest',type:'text',q:'What was the hardest part of the day that you powered through?',sub:'(one line is fine)'} ,
+    {id:'workload10',type:'scale10',q:'On a scale of 1-10, how would you rate your current workload?'} ,
+    {id:'worklifebalance',type:'choice',q:'Do you feel you have a good work-life balance today?',options:['Yes','No']},
+    {id:'stress5',type:'scale5',q:'What is your stress level related to work today? (1 = Calm, 5 = Overwhelmed)',min:1,max:5},
+    {id:'perceivedLoad',type:'options',q:'How do you perceive your total current workload?',options:['Too Light','Manageable','Too Heavy']},
+    {id:'battery',type:'percent',q:'How full is your mental battery right now? (1 - 100%)'},
+    {id:'overtime',type:'number',q:'How many hours of overtime did you work last week? (0 if none)'}
+  ];
+
+  // UI refs
+  const landing = document.getElementById('landing');
+  const landingTitle = document.getElementById('landingTitle');
+  const landingSub = document.getElementById('landingSub');
+  const quickName = document.getElementById('quickName');
+  const quickOnboard = document.getElementById('quickOnboard');
+  const startCheckinBtn = document.getElementById('startCheckinBtn');
+  const goDashboardBtn = document.getElementById('goDashboardBtn');
+  const checkinArea = document.getElementById('checkinArea');
+  const qTitle = document.getElementById('qTitle');
+  const qSub = document.getElementById('qSub');
+  const answerArea = document.getElementById('answerArea');
+  const saveContainer = document.getElementById('saveContainer');
+  const thanksArea = document.getElementById('thanksArea');
+  const dashName = document.getElementById('dashName');
+  const profilePreview = document.getElementById('profilePreview');
+  const dashCard = document.getElementById('dashCard');
+  const settingsBtn = document.getElementById('openSettings');
+  const settingsDrawer = document.getElementById('settingsDrawer');
+  const themeToggle = document.getElementById('themeToggle');
+  const syncToggle = document.getElementById('syncToggle');
+  const openPrivacy = document.getElementById('openPrivacy');
+  const modalRoot = document.getElementById('modalRoot');
+  const modalContent = document.getElementById('modalContent');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const startBtn = document.getElementById('startCheckinBtn');
+  const goDashBtn = document.getElementById('goDashboardBtn');
+  const openProfile = document.getElementById('openProfile');
+  const recentList = document.getElementById('recentList');
+
+  // charts
+  const dashCtx = document.getElementById('dashChart').getContext('2d');
+  const dashChart = new Chart(dashCtx,{type:'line',data:{labels:[],datasets:[{label:'Battery %',data:[],tension:0.4,fill:true}]},options:{responsive:true,scales:{y:{min:0,max:100}}}});
+
+  // Initial UI setup
+  function init(){
+    // theme
+    if(state.theme==='light') document.documentElement.setAttribute('data-theme','light');
+    themeToggle.checked = state.theme!=='light'; // checked=dark
+    // profile
+    if(state.profile){ showLandingBack(); } else { showLandingFirst(); }
+    renderDashboard();
+  }
+
+  function showLandingFirst(){ landingTitle.textContent='Welcome to Turbo Health+'; landingSub.textContent='A caring daily check-in — takes under a minute.'; landing.style.display='flex'; }
+  function showLandingBack(){ landingTitle.textContent=`Welcome back, ${state.profile.name.toUpperCase()}!`; landingSub.textContent='Ready for a short check-in or to view your dashboard.'; landing.style.display='flex'; profilePreview.innerHTML = `<div style="font-weight:700">${state.profile.name}</div>`; dashName.textContent = state.profile.name; }
+
+  quickOnboard.onclick = ()=>{
+    const name = (quickName.value||'Friend').trim(); if(!name) return alert('Please enter a name to save.');
+    state.profile = {name,createdAt:new Date().toISOString(),sync:false}; saveState(); showLandingBack(); }
+
+  // settings
+  settingsBtn.addEventListener('click', ()=>{ settingsDrawer.classList.toggle('open'); });
+  themeToggle.addEventListener('change', ()=>{ if(themeToggle.checked){ document.documentElement.removeAttribute('data-theme'); state.theme='dark'; } else { document.documentElement.setAttribute('data-theme','light'); state.theme='light'; } saveState(); });
+  syncToggle.checked = state.profile?.sync===true;
+  syncToggle.addEventListener('change', ()=>{ if(!state.profile){ alert('Please set up your profile first.'); syncToggle.checked=false; return; } state.profile.sync = syncToggle.checked; saveState(); });
+
+  openPrivacy.addEventListener('click', ()=>{ openModal(`<h3>Privacy Policy (placeholder)</h3><p class='small'>Your data is stored locally by default. If you enable cloud sync, data will be sent to your configured backend. Replace this text with your full privacy policy.</p><div style='text-align:right;margin-top:12px'><button id='closeModal' class='btn ghost'>Close</button></div>`); document.getElementById('closeModal').onclick=closeModal; });
+  editProfileBtn.addEventListener('click', ()=>{ openModal(profileEditHtml()); document.getElementById('saveProfileBtn').onclick=saveProfileFromModal; document.getElementById('closeProfileModal').onclick=closeModal; });
+
+  function profileEditHtml(){ const p=state.profile||{}; return `<h3>Edit Profile</h3><div style='display:flex;gap:8px;margin-top:10px'><input id='modalName' class='inputText' placeholder='Name' value='${p.name||''}' style='flex:2' /><input id='modalAge' class='inputText' placeholder='Age' style='flex:1' value='${p.age||''}' /></div><div style='margin-top:10px'><input id='modalRole' class='inputText' placeholder='Role' value='${p.role||''}' /></div><div style='margin-top:12px;display:flex;gap:8px;justify-content:flex-end'><button id='closeProfileModal' class='btn ghost'>Cancel</button><button id='saveProfileBtn' class='btn primary'>Save</button></div>` }
+  function saveProfileFromModal(){ const n=document.getElementById('modalName').value.trim(); const a=document.getElementById('modalAge').value.trim(); const r=document.getElementById('modalRole').value.trim(); if(!n) return alert('Name required'); state.profile = {name:n,age: a?Number(a):null,role:r,createdAt:state.profile?.createdAt||new Date().toISOString(),sync:state.profile?.sync||false}; saveState(); closeModal(); showLandingBack(); renderDashboard(); }
+
+  function openModal(html){ modalContent.innerHTML = html; modalRoot.style.display='flex'; }
+  function closeModal(){ modalRoot.style.display='none'; modalContent.innerHTML=''; }
+
+  document.getElementById('resetData').addEventListener('click', ()=>{ if(confirm('Reset all local data? This will clear check-ins and profile.')){ localStorage.removeItem(KEY); state={}; location.reload(); } });
+
+  // check-in flow
+  let current = 0;
+  startBtn.addEventListener('click', ()=>{ if(!state.profile){ openModal('<p class="small">Please enter your name first in the quick box or edit profile.</p><div style="text-align:right;margin-top:12px"><button id="closeM" class="btn ghost">Close</button></div>'); document.getElementById('closeM').onclick=closeModal; return; } startCheckin(); });
+  goDashBtn.addEventListener('click', ()=>{ openModal('<h3>Dashboard</h3><div id="miniDash"></div><div style="text-align:right;margin-top:12px"><button id="closeD" class="btn ghost">Close</button></div>'); document.getElementById('closeD').onclick=closeModal; renderDashboard(); });
+
+  function startCheckin(){ landing.style.display='none'; checkinArea.classList.remove('hidden'); thanksArea.classList.add('hidden'); current=0; renderQuestion(); }
+
+  function renderQuestion(){ answerArea.innerHTML = ''; saveContainer.innerHTML=''; const q = QUESTIONS[current]; qTitle.textContent = q.q; qSub.textContent = q.sub||'';
+    // input types
+    if(q.type==='text'){ const inp=document.createElement('input'); inp.className='inputText'; inp.placeholder='Type a short answer...'; answerArea.appendChild(inp); inp.focus(); // show save button
+      const btn = document.createElement('button'); btn.className='btn primary'; btn.textContent='Save & Next'; btn.onclick=()=>{ submitAnswer(inp.value); }; saveContainer.appendChild(btn);
+      inp.addEventListener('keydown', e=>{ if(e.key==='Enter') btn.click(); }); }
+    else if(q.type==='scale10'){ const r=document.createElement('input'); r.type='range'; r.min=1; r.max=10; r.value=5; r.className='range'; const v=document.createElement('div'); v.className='small'; v.textContent='5'; answerArea.appendChild(r); answerArea.appendChild(v); r.oninput=()=>v.textContent=r.value; // auto-submit after settle
+      let t; r.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>submitAnswer(r.value),700); }); }
+    else if(q.type==='choice' || q.type==='options'){ const wrap=document.createElement('div'); wrap.className='options'; q.options.forEach(opt=>{ const b=document.createElement('button'); b.className='optionBtn'; b.textContent=opt; b.onclick=()=>submitAnswer(opt); wrap.appendChild(b); }); answerArea.appendChild(wrap);
+    }
+    else if(q.type==='scale5'){ const r=document.createElement('input'); r.type='range'; r.min=q.min; r.max=q.max; r.value=Math.round((q.min+q.max)/2); r.className='range'; const v=document.createElement('div'); v.className='small'; v.textContent=r.value; answerArea.appendChild(r); answerArea.appendChild(v); r.oninput=()=>v.textContent=r.value; let t; r.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>submitAnswer(r.value),700); }); }
+    else if(q.type==='percent'){ const r=document.createElement('input'); r.type='range'; r.min=1; r.max=100; r.value=70; r.className='range'; const v=document.createElement('div'); v.className='small'; v.textContent=r.value + '%'; answerArea.appendChild(r); answerArea.appendChild(v); r.oninput=()=>v.textContent=r.value + '%'; let t; r.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>submitAnswer(r.value),700); }); }
+    else if(q.type==='number'){ const inp=document.createElement('input'); inp.type='number'; inp.className='inputText'; inp.placeholder='0'; answerArea.appendChild(inp); const btn = document.createElement('button'); btn.className='btn primary'; btn.textContent='Save & Next'; btn.onclick=()=>submitAnswer(inp.value); saveContainer.appendChild(btn); inp.addEventListener('keydown', e=>{ if(e.key==='Enter') btn.click(); }); }
+  }
+
+  function submitAnswer(val){ const q=QUESTIONS[current]; state.entries = state.entries||[]; const date=new Date().toISOString().substr(0,10); let today = state.entries.find(e=>e.date===date); if(!today){ today={date,dateRaw:new Date().toISOString()}; state.entries.push(today); }
+    today[q.id] = (val===undefined||val===null)?''+val:val; saveState(); trySyncCheckin(today); flashResponse(String(val)); current++; if(current<QUESTIONS.length){ setTimeout(renderQuestion,420); } else { setTimeout(fin,620); } }
+
+  function flashResponse(text){ const el = document.createElement('div'); el.className='bubble user fadeIn'; el.textContent=text; el.style.marginTop='12px'; checkinArea.insertBefore(el,answerArea); setTimeout(()=>el.remove(),900); }
+
+  function fin(){ checkinArea.classList.add('hidden'); thanksArea.classList.remove('hidden'); analyzeLatest(); setTimeout(()=>{thanksArea.classList.add('hidden'); landing.style.display='flex'; renderDashboard();},1400); }
+
+  // analysis
+  function analyzeLatest(){ const entries = state.entries||[]; if(entries.length===0) return; const last = entries[entries.length-1]; const battery = Number(last.battery)||50; const wl = Number(last.workload10)||5; const stress = Number(last.stress5)||3; const score = Math.max(0, Math.min(100, Math.round((battery*0.6 + (11-wl)*5*0.4) - (stress*6)))); last.analysis = last.analysis||{}; last.analysis.productivity=score; last.analysis.burnout=(stress>=4||(battery<30&&stress>=3))?'High':(stress===3||battery<50?'Medium':'Low'); saveState(); }
+
+  // dashboard
+  function renderDashboard(){ const entries = state.entries||[]; const last = entries[entries.length-1]; document.getElementById('cardProd').textContent = last?.analysis?.productivity ?? '—'; document.getElementById('cardRisk').textContent = last?.analysis?.burnout ?? '—'; dashName.textContent = state.profile?.name||'—'; profilePreview.innerHTML = state.profile?`<div style="font-weight:700">${state.profile.name}</div>`:'—'; // chart
+    const labels = entries.slice(-20).map(e=>e.date); const data = entries.slice(-20).map(e=>Number(e.battery)||0); dashChart.data.labels = labels; dashChart.data.datasets[0].data = data; dashChart.update(); recentList.innerHTML=''; entries.slice(-6).reverse().forEach(e=>{ const li = document.createElement('li'); li.textContent = `${e.date}: workload ${e.workload10||'—'} | battery ${e.battery||'—'}%`; recentList.appendChild(li); }); }
+
+  // storage
+  function loadState(){ try{ return JSON.parse(localStorage.getItem(KEY))||{} }catch(e){return{}} }
+  function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  // sync placeholders
+  function trySyncProfile(profile){ if(!profile||!profile.sync) return; console.log('Sync profile (placeholder)',profile); }
+  function trySyncCheckin(entry){ if(!entry||!state.profile?.sync) return; console.log('Sync checkin (placeholder)',entry); }
+
+  // open profile modal
+  openProfile.addEventListener('click', ()=>{ if(!state.profile){ openModal('<p class="small">No profile set. Enter your name in the landing box or quick onboard.</p><div style="text-align:right;margin-top:12px"><button id="closeP" class="btn ghost">Close</button></div>'); document.getElementById('closeP').onclick=closeModal; return; } openModal(`<h3>Profile</h3><div style='margin-top:8px'><strong>${state.profile.name}</strong><div class='small'>${state.profile.role||''}</div></div><div style='margin-top:12px;display:flex;gap:8px;justify-content:flex-end'><button id='editProf' class='btn ghost'>Edit</button><button id='closeProf' class='btn primary'>Close</button></div>`); document.getElementById('closeProf').onclick=closeModal; document.getElementById('editProf').onclick=()=>{ closeModal(); openModal(profileEditHtml()); document.getElementById('saveProfileBtn').onclick=saveProfileFromModal; document.getElementById('closeProfileModal').onclick=closeModal; }; });
+
+  // init
+  init();
+
+  // expose state for debug
+  window.TH_STATE = state;
+</script>
+</body>
+</html>
