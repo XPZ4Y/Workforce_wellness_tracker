@@ -37,4 +37,3 @@ app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
   console.log(`Access your app at http://localhost:${port}`);
 });
-
