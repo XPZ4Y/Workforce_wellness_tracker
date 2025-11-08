@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 // It sends the 'index.html' file from the 'build' directory.
 // This is crucial for React Router to take over and handle routing on the client side.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 // --- Start the Server ---
@@ -37,3 +37,4 @@ app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
   console.log(`Access your app at http://localhost:${port}`);
 });
+
